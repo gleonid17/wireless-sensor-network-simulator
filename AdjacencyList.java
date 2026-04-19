@@ -9,7 +9,7 @@ public class AdjacencyList {
         return head == null;
     }
 
-    public void insert(Edge newEdge){
+    public void insertEdge(Edge newEdge){
         if(isEmpty()){
             head = new NodeList(newEdge);
         }
@@ -25,25 +25,36 @@ public class AdjacencyList {
     }
         
 
-    public Edge remove(Edge removalEdge){
+    public Edge remove(Edge removableEdge){
         if(isEmpty()){
             return null;
-        }if (head.edge.equals(removalEdge)) {
+        }if (head.edge.equals(removableEdge)) {
             head = head.next;
-            return removalEdge;
+            return removableEdge;
         }
         NodeList current = head;
         while (current.next != null) {
-            if (current.next.edge.equals(removalEdge)) {
+            if (current.next.edge.equals(removableEdge)) {
                 current.next = current.next.next; 
-                return removalEdge;
+                return removableEdge;
             }
             current = current.next;
         }
         return null; 
     }
 
-    private class NodeList {
+    public boolean contains(Edge targetEdge) {
+        NodeList current = head;
+        while (current != null) {
+            if (current.edge.equals(targetEdge)) {
+                return true;
+            }
+            current = current.next;
+        }
+        return false;
+    }
+
+    public class NodeList {
         public Edge edge; ;
         public NodeList next;
 
