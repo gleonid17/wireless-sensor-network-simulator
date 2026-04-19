@@ -23,7 +23,7 @@ public class MinHeap {
         return size == 0;
     }
 
-    public void insert(Node node, double key) {
+    public void insertNode(Node node, double key) {
         heap[size] = new HeapNode(node, key);
         size++;
         heapifyUp(size - 1);
@@ -62,7 +62,11 @@ public class MinHeap {
         }
     }
 
-    private class HeapNode {
+    // public int getSize() {
+    //     return size;
+    // }
+
+    public static class HeapNode {
         Node node;
         double key;
         

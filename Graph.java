@@ -19,6 +19,10 @@ public class Graph {
         }
     }
 
+    public int getNodeCount() {
+        return nodeCount;
+    }
+
     private void resize() {
         int newCapacity = capacity * 2;
         Node[] newNodes = new Node[newCapacity];
