@@ -23,14 +23,14 @@ public class MinHeap {
         return size == 0;
     }
 
-    public void insertNode(Node node, double key) {
-        heap[size] = new HeapNode(node, key);
+    public void insert(double weight, Node from, Node to) {
+        heap[size] = new HeapNode(weight, from, to);
         size++;
         heapifyUp(size - 1);
     }
 
     private void heapifyUp(int index){
-        while(index > 0 && heap[index].key < heap[parent(index)].key){
+        while(index > 0 && heap[index].weight < heap[parent(index)].weight){
             swap(index, parent(index));
             index = parent(index);
         }
@@ -42,6 +42,7 @@ public class MinHeap {
         }
         HeapNode min = heap[0];
         heap[0] = heap[size - 1];
+        heap[size - 1] = null; 
         size--;
         heapifyDown(0);
         return min;
@@ -52,9 +53,9 @@ public class MinHeap {
         int right = rightChild(index);
         int smallest = index;
 
-        if(left < size && heap[left].key < heap[smallest].key)
+        if(left < size && heap[left].weight < heap[smallest].weight)
             smallest = left;
-        if(right < size && heap[right].key < heap[smallest].key)
+        if(right < size && heap[right].weight < heap[smallest].weight)
             smallest = right;
         if(smallest != index){
             swap(index, smallest);
@@ -62,17 +63,16 @@ public class MinHeap {
         }
     }
 
-    // public int getSize() {
-    //     return size;
-    // }
-
     public static class HeapNode {
-        Node node;
-        double key;
+        double weight;  
+        Node u;      
+        Node v;        // v
         
-        public HeapNode(Node node, double key) {
-            this.node = node;
-            this.key = key;
+        public HeapNode(double weight, Node from, Node to) {
+            this.weight = weight;
+            this.u = from;
+            this.v = to;
         }
+
     }
 }

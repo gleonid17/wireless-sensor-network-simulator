@@ -13,6 +13,7 @@ public class Graph {
         this.nodeCount = 0;
         this.d = d;
         this.nodes = new Node[capacity];
+        this.index = new RobinHoodHash(capacity);
 
         for (int i = 0; i < capacity; i++) {
             adj[i] = new AdjacencyList();
@@ -21,6 +22,10 @@ public class Graph {
 
     public int getNodeCount() {
         return nodeCount;
+    }
+
+    public RobinHoodHash getIndex() {
+        return index;
     }
 
     private void resize() {
@@ -42,39 +47,39 @@ public class Graph {
     }
 
     public void addNode(Node newNode){
-        if(nodeCount/capacity >= 0.9){
+        if((nodeCount + 1.0)/capacity >= 0.9){
             resize();
         }
         nodes[nodeCount] = newNode;
         adj[nodeCount] = new AdjacencyList();
+        index.put(newNode.getID(), nodeCount);
 
         for(int i=0; i<nodeCount; i++){
             if(Position.withinRange(newNode.getPosition(), nodes[i].getPosition(), d)){
                 Edge newEdge = new Edge(newNode, nodes[i]);
-                adj[nodeCount].insertEdge(newEdge);
-                adj[i].insertEdge(newEdge);
+                adj[nodeCount].insert(newEdge);
+                adj[i].insert(newEdge);
             }
         }
         nodeCount++;
     }
 
     public void removeNode(Node removableNode){
-        int index = index.get(removableNode.getId());
-        if(index == -1){
+        int i = this.index.get(removableNode.getID());
+        if(i == -1){
             return;
         }
-        AdjacencyList.NodeList current = adj[index].getEdges();
-        while(current != null){
-            Node neighbor = current.edge.getOtherNode(nodes[i]);
-            int neighborIndex = index.get(neighbor.getID());
-            adj[neighborIndex].remove(current.edge);
-            current = current.next;
+        Edge[] edges = adj[i].toArray();
+        for(Edge e : edges){
+            Node neighbor = e.getOtherNode(nodes[i]);
+            int neighborIndex = this.index.get(neighbor.getID());
+            adj[neighborIndex].remove(e);
         }          
 
-        nodes[index] = nodes[nodeCount-1];
-        adj[index] = adj[nodeCount-1];
-        index.remove(removableNode.getId());
-        if (index != nodeCount - 1) {
+        nodes[i] = nodes[nodeCount-1];
+        adj[i] = adj[nodeCount-1];
+        index.remove(removableNode.getID());
+        if (i != nodeCount - 1) {
             index.update(nodes[i].getID(), i);
         }
         nodes[nodeCount-1] = null;
@@ -82,20 +87,20 @@ public class Graph {
         nodeCount--;
     }
 
-    public Node getNode(int id){
-        int index = index.get(id);
-        if(index == -1){
+    public Node getNode(String id){
+        int i = this.index.get(id);
+        if(i == -1){
             return null;
         }
-        return nodes[index];
+        return nodes[i];
     }
 
-    public AdjacencyList getAdjacencyList(int id){
-        int index = index.get(id);
-        if(index == -1){
+    public AdjacencyList getAdjacencyList(Node node){
+        int i = this.index.get(node.getID());
+        if(i == -1){    
             return null;
         }
-        return adj[index];
+        return adj[i];
     }
 
     public Node[] getNodes(){

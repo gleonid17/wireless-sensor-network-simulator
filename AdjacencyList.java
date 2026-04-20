@@ -9,7 +9,7 @@ public class AdjacencyList {
         return head == null;
     }
 
-    public void insertEdge(Edge newEdge){
+    public void insert(Edge newEdge){
         if(isEmpty()){
             head = new NodeList(newEdge);
         }
@@ -52,6 +52,20 @@ public class AdjacencyList {
             current = current.next;
         }
         return false;
+    }
+
+    public Edge[] toArray() {
+        int count = 0;
+        NodeList temp = head;
+        while (temp != null) { count++; temp = temp.next; }
+        
+        Edge[] edges = new Edge[count];
+        temp = head;
+        for (int i = 0; i < count; i++) {
+            edges[i] = temp.edge;
+            temp = temp.next;
+        }
+        return edges;
     }
 
     public class NodeList {
