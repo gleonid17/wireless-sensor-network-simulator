@@ -40,7 +40,7 @@ public class Position {
     //Didn't implement toString, left for later
     @Override
     public String toString() {
-        return "";
+        return "(" + this.x + "," + this.y + ")";
     }
 }
     
