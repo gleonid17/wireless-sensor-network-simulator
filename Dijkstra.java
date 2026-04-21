@@ -3,18 +3,22 @@ public class Dijkstra {
     Graph graph;
     Node source;
     Node destination;
+    Double totalDistance;
+    int numberOfSteps;
 
     public Dijkstra(Graph graph, Node source, Node destination) {
         this.path = null;
         this.graph = graph;
         this.source = source;
         this.destination = destination;
+        this.totalDistance = 0.0;
+        this.numberOfSteps = 0;
     }
 
-    public AdjacencyList dijkstra() {
+    public void dijkstra() {
         if (destination.getTemperature() < 50){
             System.out.println("Η θερμοκρασία του σταθμού " + destination.getID() + " είναι κάτω από 50 βαθμούς. \n Δεν υπάρχει πυρκαγία");
-            return null;
+            return;
         }
         int n = graph.getNodeCount();
         Node[] nodes = graph.getNodes();
@@ -52,18 +56,27 @@ public class Dijkstra {
             count++;
         }
         if (distances[destinationIndex] == Double.POSITIVE_INFINITY)
-            return null; // No path exists
-        AdjacencyList path = new AdjacencyList();
+            return; // No path exists
         int currentIndex = destinationIndex;
         while (previous[currentIndex] != -1) {
-            path.insert(new Edge(nodes[previous[currentIndex]], nodes[currentIndex]));
+            Edge temp = new Edge(nodes[previous[currentIndex]], nodes[currentIndex]);
+            this.totalDistance += temp.getWeight();
+            this.numberOfSteps++;
+            path.insert(temp);
             currentIndex = previous[currentIndex];
         }
-        return path;
     }
 
     @Override
     public String toString() {
         return path.toString();
+    }
+
+    public double gettotalDistance() {
+        return this.totalDistance;
+    }
+
+    public int getNumberOfSteps() {
+        return this.numberOfSteps;
     }
 }
