@@ -1,18 +1,12 @@
 public class RobinHoodHash {
-
     private NodeEntry[] table;
-    
     private int maxProbeLength;
-
     private int capacity;
-
     private int size;
-
    
     public RobinHoodHash() {
         this(7);
     }
-
    
     public RobinHoodHash(int capacity) {
         size = 0;
@@ -20,7 +14,6 @@ public class RobinHoodHash {
         maxProbeLength = 0;
         table = new NodeEntry[capacity];
     }
-
 
     public void put(String id, int index) {
         if (id == null) 
