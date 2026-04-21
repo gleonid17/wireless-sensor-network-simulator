@@ -2,9 +2,10 @@ public class MinimumSpanningTree {
     Graph graph;
     MinHeap minHeap;
     boolean[] visited;
-    Node[] parent;      // αντί closest[]
-    double[] weights;   // βάρος κάθε ακμής MST
+    Node[] parent;     
+    double[] weights;   
     double totalCost;
+    double maxTempFound; 
 
     public MinimumSpanningTree(Graph graph) {
         this.graph = graph;
@@ -13,6 +14,7 @@ public class MinimumSpanningTree {
         this.parent = new Node[graph.getNodeCount()];
         this.weights = new double[graph.getNodeCount()];
         this.totalCost = 0.0;
+        this.maxTempFound = -1.0;
     }
 
     private int getIndex(Node node) {
@@ -139,6 +141,45 @@ public class MinimumSpanningTree {
             parent[maxID] = null;
             weights[maxID] = 0.0;
         }
+    }
+
+    public void findMaxTemperature(Node current) {
+        for (int i = 0; i < parent.length; i++) {
+            if (parent[i] == current) {
+                findMaxTemperature(graph.getNodes()[i]);
+            }
+        }
+        
+        if (parent[getIndex(current)] != null) {
+            Node p = parent[getIndex(current)];
+            System.out.println("Μήνυμα: " + current.getID() + " -> " + p.getID() + " [MaxTemp=" + current.getTemperature() + "]");
+        }
+    }
+
+    public void broadcastMaxTemperature(Node current, double maxTemp) {
+        System.out.println("Ενημέρωση: " + current.getID() + " έλαβε MaxTemp = " + maxTemp);
+        
+        for (int i = 0; i < parent.length; i++) {
+            if (parent[i] == current) {
+                System.out.println("Μήνυμα: " + current.getID() + " -> " + graph.getNodes()[i].getID() + " [Ενημέρωση MaxTemp]");
+                broadcastMaxTemperature(graph.getNodes()[i], maxTemp);
+            }
+        }
+    }
+
+    public void maxTemperature(String startNodeID) {
+        Node startNode = graph.getNode(startNodeID);
+        maxTempFound = -1.0; // Reset για νέα αναζήτηση
+
+        System.out.println("=== ΦΑΣΗ ΣΥΛΛΟΓΗΣ (Αναζήτηση Max Temp) ===");
+        // Αναδρομική αναζήτηση από τα φύλλα προς τη ρίζα (startNode)
+        findMaxTemperature(startNode);
+        
+        System.out.println("Τελική μέγιστη θερμοκρασία δικτύου: " + maxTempFound);
+        
+        System.out.println("\n=== ΦΑΣΗ ΕΝΗΜΕΡΩΣΗΣ (Broadcast) ===");
+        // Αναδρομική ενημέρωση από τη ρίζα (startNode) προς τα φύλλα
+        broadcastMaxTemperature(startNode, maxTempFound);
     }
 
     public void printMST() {
