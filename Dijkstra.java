@@ -1,5 +1,17 @@
 public class Dijkstra {
-    public static AdjacencyList dijkstra(Graph graph, Node source, Node destination) {
+    AdjacencyList path;
+    Graph graph;
+    Node source;
+    Node destination;
+
+    public Dijkstra(Graph graph, Node source, Node destination) {
+        this.path = null;
+        this.graph = graph;
+        this.source = source;
+        this.destination = destination;
+    }
+
+    public AdjacencyList dijkstra() {
         if (destination.getTemperature() < 50){
             System.out.println("Η θερμοκρασία του σταθμού " + destination.getID() + " είναι κάτω από 50 βαθμούς. \n Δεν υπάρχει πυρκαγία");
             return null;
@@ -48,5 +60,10 @@ public class Dijkstra {
             currentIndex = previous[currentIndex];
         }
         return path;
+    }
+
+    @Override
+    public String toString() {
+        return path.toString();
     }
 }

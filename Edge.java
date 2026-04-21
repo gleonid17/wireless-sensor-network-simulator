@@ -48,6 +48,8 @@ public class Edge {
 
     @Override
     public String toString() {
-        return "";
+        StringBuilder sb = new StringBuilder();
+        sb.append(sourceNode.toString()).append(" --> ").append(destinationNode.toString()).append("[").append(this.weight).append("]");
+        return sb.toString();
     }
 }

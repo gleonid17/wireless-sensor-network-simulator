@@ -68,6 +68,17 @@ public class AdjacencyList {
         return edges;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        NodeList temp = head;
+        while (temp != null) {
+            sb.append(temp.edge.toString()).append(" --> ");
+            temp = temp.next;
+        }
+        return sb.toString();
+    }
+
     public class NodeList {
         public Edge edge; ;
         public NodeList next;
