@@ -72,10 +72,12 @@ public class AdjacencyList {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         NodeList temp = head;
-        while (temp != null) {
-            sb.append(temp.edge.toString()).append(" --> ");
+        sb.append(temp.edge.getSourceNode()).append(" --> ");
+        while (temp.next != null) {
+            sb.append(temp.edge.getDestinationNode()).append(" [").append(temp.edge.getWeight()).append("]").append(" --> ");
             temp = temp.next;
         }
+        sb.append(temp.edge.getDestinationNode().toString());
         return sb.toString();
     }
 
