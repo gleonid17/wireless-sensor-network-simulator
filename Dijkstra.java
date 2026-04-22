@@ -15,10 +15,10 @@ public class Dijkstra {
         this.numberOfSteps = 0;
     }
 
-    public void dijkstra() {
+    public AdjacencyList dijkstra() {
         if (destination.getTemperature() < 50){
             System.out.println("Η θερμοκρασία του σταθμού " + destination.getID() + " είναι κάτω από 50 βαθμούς. \n Δεν υπάρχει πυρκαγία");
-            return;
+            return null;
         }
         int n = graph.getNodeCount();
         Node[] nodes = graph.getNodes();
@@ -56,7 +56,7 @@ public class Dijkstra {
             count++;
         }
         if (distances[destinationIndex] == Double.POSITIVE_INFINITY)
-            return; // No path exists
+            return null; // No path exists
         int currentIndex = destinationIndex;
         while (previous[currentIndex] != -1) {
             Edge temp = new Edge(nodes[previous[currentIndex]], nodes[currentIndex]);
@@ -65,6 +65,7 @@ public class Dijkstra {
             path.insert(temp);
             currentIndex = previous[currentIndex];
         }
+        return path;
     }
 
     @Override

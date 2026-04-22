@@ -60,7 +60,7 @@ public class MinimumSpanningTree {
         }
     }
 
-    // public Node[] getMST(Node node) {
+    /* public Node[] getMST(Node node) {
     //     Node[] mst = new Node[graph.getNodeCount()];
     //     Node current = node;
     //     int count = 0;
@@ -70,7 +70,7 @@ public class MinimumSpanningTree {
     //     current = parent[getIndex(current)];            
     //     }
     //     return mst;
-    // }
+    // }*/
 
     public void updateMST(Node newNode) {
         double minweight = Double.MAX_VALUE;
