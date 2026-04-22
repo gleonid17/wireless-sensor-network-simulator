@@ -1,10 +1,11 @@
 public class Graph {
-    private Node[] nodes;          // dynamic array, ξεκινά με capacity=7
-    private AdjacencyList[] adj;   // ίδιο μέγεθος με nodes[]
-    private RobinHoodHash index;   // id → θέση στο nodes[] για O(1) lookup
-    private int nodeCount;         // τρέχων αριθμός κόμβων
-    private int capacity;          // τρέχουσα χωρητικότητα (ξεκινά 7)
-    private double d;              // μέγιστη απόσταση για ακμή
+    private Node[] nodes;          
+    private AdjacencyList[] adj;   
+    private RobinHoodHash index;   
+    private int nodeCount;         
+    private int capacity;          
+    private double d;       
+    private MinimumSpanningTree mstInstance;       
 
     
     public Graph(double d) {
@@ -18,6 +19,10 @@ public class Graph {
         for (int i = 0; i < capacity; i++) {
             adj[i] = new AdjacencyList();
         }
+    }
+
+    public void setMST(MinimumSpanningTree mst) {
+        this.mstInstance = mst;
     }
 
     public int getNodeCount() {
@@ -76,15 +81,25 @@ public class Graph {
             adj[neighborIndex].remove(e);
         }          
 
+        int lastIdx = nodeCount - 1;
+        if (mstInstance != null && i != lastIdx) {
+        mstInstance.updateIndex(i, lastIdx);
+        }
+
+        if (i != lastIdx) {
         nodes[i] = nodes[nodeCount-1];
         adj[i] = adj[nodeCount-1];
-        index.remove(removableNode.getID());
-        if (i != nodeCount - 1) {
-            index.update(nodes[i].getID(), i);
+        index.update(nodes[i].getID(), i);
         }
+
+        index.remove(removableNode.getID());
         nodes[nodeCount-1] = null;
         adj[nodeCount-1] = new AdjacencyList();
         nodeCount--;
+
+        if (mstInstance != null) {
+            mstInstance.clearIndex(i); // Πρόσθεσε μια τέτοια μέθοδο
+        }
     }
 
     public Node getNode(String id){

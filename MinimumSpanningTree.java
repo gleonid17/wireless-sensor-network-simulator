@@ -2,7 +2,7 @@ public class MinimumSpanningTree {
     Graph graph;
     MinHeap minHeap;
     boolean[] visited;
-    Node[] parent;     
+    int[] parent;     
     double[] weights;   
     double totalCost;
     double maxTempFound; 
@@ -11,7 +11,8 @@ public class MinimumSpanningTree {
         this.graph = graph;
         this.minHeap = new MinHeap(graph.getNodeCount() * graph.getNodeCount() );
         this.visited = new boolean[graph.getNodeCount()];
-        this.parent = new Node[graph.getNodeCount()];
+        this.parent = new int[graph.getNodeCount()];
+        java.util.Arrays.fill(this.parent, -1);
         this.weights = new double[graph.getNodeCount()];
         this.totalCost = 0.0;
         this.maxTempFound = -1.0;
@@ -25,14 +26,14 @@ public class MinimumSpanningTree {
         int n = graph.getNodeCount();
         this.minHeap = new MinHeap(n * n);
         this.visited = new boolean[n];
-        this.parent = new Node[n];
+        this.parent = new int[n];
         this.weights = new double[n];
         Node[] potentialParent = new Node[n];
         this.totalCost = 0.0;
 
         for(int i=0; i<graph.getNodeCount(); i++){
             visited[i] = false;
-            parent[i] = null;
+            parent[i] = -1;
             weights[i] = 0;
         }
         totalCost = 0.0;
@@ -45,7 +46,7 @@ public class MinimumSpanningTree {
             if (visited[uIndex]) continue;
             visited[uIndex] = true;
 
-            parent[uIndex] = potentialParent[uIndex];
+            parent[uIndex] = getIndex(potentialParent[uIndex]);
             weights[uIndex] = min.weight;
             totalCost += min.weight;
 
@@ -62,118 +63,115 @@ public class MinimumSpanningTree {
         }
     }
 
+    public void updateIndex(int newIdx, int oldIdx) {
+        for(int j=0; j < parent.length; j++) {
+            if(parent[j] == oldIdx) {
+                parent[j] = newIdx;
+            }
+        }
+        parent[newIdx] = parent[oldIdx];
+        weights[newIdx] = weights[oldIdx];
+        parent[oldIdx] = -1;
+        weights[oldIdx] = 0;
+    }
+
+    public void clearIndex(int idx) {
+        if (idx >= 0 && idx < parent.length) {
+            parent[idx] = -1;
+            weights[idx] = 0;
+            visited[idx] = false;
+        }
+    }
+            
     public void updateMST(Node newNode) {
-        double minweight = Double.MAX_VALUE;
-        Edge bestEdge = null;
         Node bestNeighbor = null;
-
-        Edge[] edges = graph.getAdjacencyList(newNode).toArray();
-
-        for (Edge e : edges) {
-            double w = e.getWeight();
-            if (w < minweight) {
-                minweight = w;
-                bestEdge = e;
-                bestNeighbor = e.getOtherNode(newNode);
+        double minD = Double.MAX_VALUE;
+        
+        for (int i = 0; i < graph.getNodeCount(); i++) {
+            Node n = graph.getNodes()[i];
+            if (n != null && !n.equals(newNode)) {
+                double d = Position.distance(newNode.getPosition(), n.getPosition());
+                if (d < minD) {
+                    minD = d;
+                    bestNeighbor = n;
+                }
             }
         }
-        if (bestNeighbor != null) {
-            int index = getIndex(newNode);
-            parent[index] = bestNeighbor;
-            weights[index] = minweight;
-            totalCost += minweight;
-        }
+        int newIdx = getIndex(newNode);
+        parent[newIdx] = getIndex(bestNeighbor);
+        weights[newIdx] = minD;
 
-        for (Edge e : edges) {
-            if (e != bestEdge) { 
-                optimizeMST(newNode, e.getOtherNode(newNode), e.getWeight());
-            }
-        }
+        totalCost += minD;
+
+        optimizeMST(newNode);
     }
 
     public double getTotalCost() {
         return totalCost;
     }
-
-    public void optimizeMST(Node newNode, Node neighbor, double newWeight) {
-        Node current = neighbor;
+    private void optimizeMST(Node newNode) {
+        Node maxWeightNode = null;
         double maxWeight = -1.0;
-        Node maxNode = null;
+        Node current = newNode;
 
         while (current != null) {
-            int currentIndex = getIndex(current);
-            if (weights[currentIndex] > maxWeight) {
-                maxWeight = weights[currentIndex];
-                maxNode = current;
+            int idx = getIndex(current);
+            if (parent[idx] != -1 && weights[idx] > maxWeight) {
+                maxWeight = weights[idx];
+                maxWeightNode = current;
             }
-            current = parent[currentIndex];
+            
+            current = graph.getNodes()[parent[idx]];
         }
 
-        if (newWeight < maxWeight && maxNode != null) {
-            System.out.printf("Improvement: %s--%s [%.2f] replaces %s--%s [%.2f]%n", 
-                newNode.getID(), neighbor.getID(), newWeight, maxNode.getID(), 
-                parent[getIndex(maxNode)] != null ? parent[getIndex(maxNode)].getID() : "root", maxWeight);
+        if (maxWeightNode != null) {
+            int idx = getIndex(maxWeightNode);
+            totalCost -= weights[idx];
             
-            totalCost += newWeight - maxWeight;
+            parent[idx] = -1;
+            weights[idx] = 0;
+            
+            System.out.println("Βελτιστοποίηση: Αφαιρέθηκε η ακμή " + maxWeightNode.getID() + " με βάρος " + maxWeight);
+        }
+    }
 
-            for(int i = 0; i < parent.length; i++) {
-                if(parent[i] == maxNode) {
-                    parent[i] = newNode;
+    public double findMaxTemperature(Node current) {
+        double maxTemp = current.getTemperature();
+        for (int i = 0; i < parent.length; i++) {
+            if (parent[i] != -1 && graph.getNodes()[parent[i]].equals(current)) {
+                double childMax = findMaxTemperature(graph.getNodes()[i]);
+                if (childMax > maxTemp) {
+                    maxTemp = childMax;
                 }
             }
-            int newNodeIndex = getIndex(newNode);
-            parent[newNodeIndex] = neighbor;
-            weights[newNodeIndex] = newWeight;
-
-            int maxNodeIndex = getIndex(maxNode);
-            weights[maxNodeIndex] = newWeight;
-
-            int maxID = getIndex(maxNode);
-            parent[maxID] = null;
-            weights[maxID] = 0.0;
         }
+
+         if (maxTemp > maxTempFound) {
+            maxTempFound = maxTemp;
+        }
+        return maxTemp;
     }
 
-    public void findMaxTemperature(Node current) {
-        for (int i = 0; i < parent.length; i++) {
-            if (parent[i] == current) {
-                findMaxTemperature(graph.getNodes()[i]);
-            }
-        }
-
-         if (current.getTemperature() > maxTempFound) {
-            maxTempFound = current.getTemperature();
-        }
+    public void broadcastMaxTemperature(Node current, double maxTemp) {
+        current.setTemperature(maxTemp);
         
-        if (parent[getIndex(current)] != null) {
-            Node p = parent[getIndex(current)];
-            System.out.println("Message: " + current.getID() + " -> " + p.getID() + " [MaxTemp=" + current.getTemperature() + "]");
-        }
-    }
-
-    private void broadcastRequest(Node current) {
         for (int i = 0; i < parent.length; i++) {
-            if (parent[i] == current && graph.getNodes()[i] != null) {
-                Node child = graph.getNodes()[i];
-                System.out.println("Message: " + current.getID() + " -> " + child.getID() 
-                    + " [Request MaxTemp]");
-                broadcastRequest(child);
+            if (parent[i] != -1 && graph.getNodes()[parent[i]].equals(current)) {
+                broadcastMaxTemperature(graph.getNodes()[i], maxTemp);
             }
         }
     }
 
     public void maxTemperature(String startNodeID) {
         Node startNode = graph.getNode(startNodeID);
-        maxTempFound = -1.0;
+        maxTempFound = -1.0; 
 
-         System.out.println("=== REQUEST PROPAGATION PHASE ===");
-            broadcastRequest(startNode);
+        System.out.println("=== ΦΑΣΗ ΣΥΛΛΟΓΗΣ ===");
+        findMaxTemperature(startNode);
+        System.out.println("Τελική μέγιστη θερμοκρασία: " + maxTempFound);
         
-         System.out.println("\n=== RESPONSE COLLECTION PHASE ===");
-         findMaxTemperature(startNode);
-
-         System.out.println("\n=== RESULT ===");
-         System.out.println("Maximum Temperature found: " + maxTempFound + "°C");
+        System.out.println("=== ΦΑΣΗ ΕΝΗΜΕΡΩΣΗΣ ===");
+        broadcastMaxTemperature(startNode, maxTempFound);
     }
 
     public void printMST() {
@@ -182,8 +180,8 @@ public class MinimumSpanningTree {
         Node[] allNodes = graph.getNodes();
         
         for (int i = 0; i < parent.length; i++) {
-            if (parent[i] != null && i < allNodes.length && allNodes[i] != null) {
-                String pID = parent[i].getID();
+            if (parent[i] != -1 && i < allNodes.length && allNodes[i] != null) {
+                String pID = graph.getNodes()[parent[i]].getID();
                 String nID = allNodes[i].getID();
                 String wStr = String.format("%.2f", weights[i]);
                 
