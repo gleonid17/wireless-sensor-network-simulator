@@ -27,3 +27,6 @@
  * Debugging and turn all output messages to english because of an encoding issue
  * Debugging of Minimum Spanning Tree
  * Created CHANGELOG.md and changed Run class to ask again if selection is wrong
+ * Final Debugging
+ * Created readme.md and report.md
+ * Update CHANGELOG.md with final debugging notes and README/report creation
