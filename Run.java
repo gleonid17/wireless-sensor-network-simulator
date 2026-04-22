@@ -37,6 +37,8 @@ public class Run {
             System.out.println("7. Notify fire station of potential fire (Pathfinding)");
             System.out.println("8. Exit");
             System.out.print("Selection: ");
+            System.out.println();
+            System.out.println();
             int choice;
             try {
                 choice = Integer.parseInt(scanner.nextLine().trim());
@@ -48,6 +50,7 @@ public class Run {
                 case 1:
                     Node root = graph.getFirstFireStation();
                     mst = new MinimumSpanningTree(graph);
+                    graph.setMST(mst);
                     mst.Prim(root);
                     mst.printMST();
                     break;
@@ -83,6 +86,7 @@ public class Run {
                     graph.removeNode(removeNode);
                     Node newRoot = graph.getFirstFireStation();
                     mst = new MinimumSpanningTree(graph);
+                    graph.setMST(mst);
                     mst.Prim(newRoot);
                     break;
                 case 5:

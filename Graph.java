@@ -57,7 +57,7 @@ public class Graph {
         }
         nodes[nodeCount] = newNode;
         adj[nodeCount] = new AdjacencyList();
-        index.put(newNode.getID(), nodeCount);
+        index.insert(newNode.getID(), nodeCount);
 
         for(int i=0; i<nodeCount; i++){
             if(Position.withinRange(newNode.getPosition(), nodes[i].getPosition(), d)){
@@ -70,14 +70,14 @@ public class Graph {
     }
 
     public void removeNode(Node removableNode){
-        int i = this.index.get(removableNode.getID());
+        int i = this.index.find(removableNode.getID());
         if(i == -1){
             return;
         }
         Edge[] edges = adj[i].toArray();
         for(Edge e : edges){
             Node neighbor = e.getOtherNode(nodes[i]);
-            int neighborIndex = this.index.get(neighbor.getID());
+            int neighborIndex = this.index.find(neighbor.getID());
             adj[neighborIndex].remove(e);
         }          
 
@@ -89,7 +89,7 @@ public class Graph {
         if (i != lastIdx) {
         nodes[i] = nodes[nodeCount-1];
         adj[i] = adj[nodeCount-1];
-        index.update(nodes[i].getID(), i);
+        index.updateIndex(nodes[i].getID(), i);
         }
 
         index.remove(removableNode.getID());
@@ -103,7 +103,7 @@ public class Graph {
     }
 
     public Node getNode(String id){
-        int i = this.index.get(id);
+        int i = this.index.find(id);
         if(i == -1){
             return null;
         }
@@ -111,7 +111,7 @@ public class Graph {
     }
 
     public AdjacencyList getAdjacencyList(Node node){
-        int i = this.index.get(node.getID());
+        int i = this.index.find(node.getID());
         if(i == -1){    
             return null;
         }

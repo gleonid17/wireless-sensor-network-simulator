@@ -1,158 +1,125 @@
-public class RobinHoodHash {
-    private NodeEntry[] table;
-    private int maxProbeLength;
-    private int capacity;
+class RobinHoodHash {
+    private class HashEntry {
+        String id;
+        int indexInGraph;
+        int psl;
+        boolean isEmpty;
+
+        public HashEntry() { 
+            isEmpty = true; 
+            psl = 0; 
+        }
+
+        public HashEntry(String id, int indexInGraph, int psl) {
+            this.id = id;
+            this.indexInGraph = indexInGraph;
+            this.psl = psl;
+            this.isEmpty = false;
+        }
+    }
+    private HashEntry[] table;
     private int size;
-   
-    public RobinHoodHash() {
-        this(7);
-    }
-   
+    private int capacity;
+    private int maxPSL;
+
     public RobinHoodHash(int capacity) {
-        size = 0;
         this.capacity = capacity;
-        maxProbeLength = 0;
-        table = new NodeEntry[capacity];
+        table = new HashEntry[capacity];
+        for (int i = 0; i < capacity; i++) table[i] = new HashEntry();
+        size = 0;
+        maxPSL = 0;
     }
 
-    public void put(String id, int index) {
-        if (id == null) 
-            return;
-        if ((size + 1) / (float) capacity >= 0.9)
-            rehash();
-        int hashIndex = hash(id);
-        insertHelper(new NodeEntry(id, index), hashIndex, 0);
-        size++;
-    }
-
-    private void insertHelper(NodeEntry entry, int index, int probeLength) {
-        if (table[index] == null || !table[index].isOccupied()) {
-            table[index] = entry;
-
-            if (probeLength > maxProbeLength) {
-                maxProbeLength = probeLength;
-            }
-            return;
+    private long computeHash(String key) {
+        long hash = 0xcbf29ce484222325L;
+        long prime = 0x100000001b3L;
+        for (int i = 0; i < key.length(); i++) {
+            hash ^= key.charAt(i);
+            hash *= prime;
         }
+        return hash;
+    }
 
-        // Check whether to swap elements
-        int key = hash(table[index].id);
-        int existingProbeLength = index - key;
+    private int hash(String key) {
+        return (int)(Math.abs(computeHash(key)) % capacity);
+    }
 
-        if (existingProbeLength < 0)
-            existingProbeLength = capacity - key + index;
-
-        if (probeLength <= existingProbeLength) {
-            // Insert the same edge at the next index
-            insertHelper(entry, (index + 1) % capacity, probeLength + 1);
-        } else {
-            // Swap elements and insert temp at next index
-            NodeEntry temp = table[index];
-            table[index] = entry;
-
-            if (probeLength > maxProbeLength) {
-                maxProbeLength = probeLength;
+    public void insert(String key, int indexInGraph) {
+        if (size >= capacity * 0.9) rehash();
+        HashEntry entry = new HashEntry(key, indexInGraph, 0);
+        int pos = hash(key);
+        while (true) {
+            if (table[pos].isEmpty) {
+                table[pos] = entry;
+                size++;
+                if (entry.psl > maxPSL) maxPSL = entry.psl;
+                return;
             }
-
-            insertHelper(temp, (index + 1) % capacity, existingProbeLength + 1);
+            if (entry.psl > table[pos].psl) {
+                HashEntry temp = table[pos];
+                table[pos] = entry;
+                entry = temp;
+            }
+            pos = (pos + 1) % capacity;
+            entry.psl++;
         }
     }
 
-    public int get(String id) {
-        int key = hash(id);
-        for (int i = 0; i <= maxProbeLength; i++) {
-            int index = (key + i) % capacity;
-            if (table[index] == null || !table[index].occupied)
-                return -1;
-            if (table[index].id.equals(id))
-                return table[index].index;
+    public int find(String key) {
+        int pos = hash(key);
+        int psl = 0;
+        while (!table[pos].isEmpty && psl <= maxPSL) {
+            if (table[pos].id.equals(key)) return table[pos].indexInGraph;
+            pos = (pos + 1) % capacity;
+            psl++;
         }
         return -1;
     }
 
-    
-    public void rehash() {
-        int newCapacity = capacity * 2;
-        RobinHoodHash ht = new RobinHoodHash(newCapacity);
-        for (int i = 0; i < capacity; i++) {
-            if (table[i] != null && table[i].occupied)
-                ht.put(table[i].id, table[i].index);
-        }
-        copy(ht);
-    }
-
-    private void copy(RobinHoodHash ht) {
-        this.capacity = ht.capacity;
-        this.maxProbeLength = ht.maxProbeLength;
-        this.size = ht.size;
-
-        this.table = new NodeEntry[ht.capacity];
-
-        for (int i = 0; i < ht.capacity; i++) {
-            this.table[i] = ht.table[i];
-        }
-    }
-
-    private int hash(String id) {
-        int sum = 0;
-        for (int i = 0; i < id.length(); i++)
-            sum += id.charAt(i);
-        return sum % capacity;
-    }
-
-    public void remove(String id) {
-        int key = hash(id);
-        for (int i = 0; i <= maxProbeLength; i++) {
-            int index = (key + i) % capacity;
-            if (table[index] == null) return;
-            if (table[index].id.equals(id)) {
-                table[index].occupied = false;
+    public void remove(String key) {
+        int pos = hash(key);
+        int psl = 0;
+        while (!table[pos].isEmpty && psl <= maxPSL) {
+            if (table[pos].id.equals(key)) {
+                shiftDelete(pos);
                 size--;
                 return;
             }
+            pos = (pos + 1) % capacity;
+            psl++;
         }
     }
 
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-
-        for (int i = 0; i < capacity; i++) {
-            if (table[i] == null || !table[i].isOccupied())
-                sb.append("_ ");
-            else
-                sb.append(table[i].id + ' ');
-
+    private void shiftDelete(int pos) {
+        int next = (pos + 1) % capacity;
+        while (!table[next].isEmpty && table[next].psl > 0) {
+            table[pos] = new HashEntry(table[next].id, table[next].indexInGraph, table[next].psl - 1);
+            pos = next;
+            next = (next + 1) % capacity;
         }
-
-        return sb.toString();
+        table[pos] = new HashEntry();
     }
 
-    public void update(String id, int newIndex) {
-        int key = hash(id);
-        for (int i = 0; i <= maxProbeLength; i++) {
-            int index = (key + i) % capacity;
-            if (table[index] == null) return;
-            if (table[index].id.equals(id)) {
-                table[index].index = newIndex;
+    public void updateIndex(String key, int newIndexInGraph) {
+        int pos = hash(key);
+        int psl = 0;
+        while (!table[pos].isEmpty && psl <= maxPSL) {
+            if (table[pos].id.equals(key)) {
+                table[pos].indexInGraph = newIndexInGraph;
                 return;
             }
+            pos = (pos + 1) % capacity;
+            psl++;
         }
     }
-
-    private class NodeEntry {
-        public String id;
-        public int index;
-        public boolean occupied;
-        
-        public NodeEntry(String id, int index) {
-            this.id = id;
-            this.index = index;
-            this.occupied = true;
-        }
-
-        public boolean isOccupied() {
-            return occupied;
-        }
+    
+    private void rehash() {
+        HashEntry[] old = table;
+        capacity *= 2;
+        table = new HashEntry[capacity];
+        for (int i = 0; i < capacity; i++) table[i] = new HashEntry();
+        size = 0;
+        maxPSL = 0;
+        for (HashEntry e : old) if (!e.isEmpty) insert(e.id, e.indexInGraph);
     }
-
 }

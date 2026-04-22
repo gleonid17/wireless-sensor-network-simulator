@@ -16,8 +16,8 @@ public class Dijkstra {
     }
 
     public AdjacencyList dijkstra() {
-        if (destination.getTemperature() < 50){
-            System.out.println("Η θερμοκρασία του σταθμού " + destination.getID() + " είναι κάτω από 50 βαθμούς. \n Δεν υπάρχει πυρκαγία");
+        if (source.getTemperature() < 50){
+            System.out.println("The temperature of the node " + source.getID() + " is below 50 degrees. \n There is no fire.");
             return null;
         }
         int n = graph.getNodeCount();
@@ -26,27 +26,27 @@ public class Dijkstra {
         int[] previous = new int[n];
         boolean[] visited = new boolean[n];
         RobinHoodHash index = graph.getIndex();
-        int sourceIndex = index.get(source.getID());
-        int destinationIndex = index.get(destination.getID());
+        int sourceIndex = index.find(source.getID());
+        int destinationIndex = index.find(destination.getID());
         for(int i = 0; i < n; i++) {
             distances[i] = Double.POSITIVE_INFINITY;
             previous[i] = -1;
             visited[i] = false;
         }
         distances[sourceIndex] = 0.0;
-        MinHeap heap = new MinHeap(n);
+        MinHeap heap = new MinHeap(n * n);
         heap.insertNode(source, 0.0);
         int count = 0;
         while(count < n && !heap.isEmpty()) {
             MinHeap.HeapNode heapNode = heap.extractMin();
-            int u = index.get(heapNode.node.getID());
+            int u = index.find(heapNode.node.getID());
             if (visited[u]) 
                 continue;
             visited[u] = true;
             AdjacencyList neighbors = graph.getAdjacencyList(nodes[u]);
             for (Edge edge : neighbors.toArray()) {
                 Node neighbor = edge.getOtherNode(nodes[u]);
-                int v = index.get(neighbor.getID());
+                int v = index.find(neighbor.getID());
                 if (distances[v] > distances[u] + edge.getWeight()) {
                     distances[v] = distances[u] + edge.getWeight();
                     previous[v] = u;
@@ -58,12 +58,18 @@ public class Dijkstra {
         if (distances[destinationIndex] == Double.POSITIVE_INFINITY)
             return null; // No path exists
         int currentIndex = destinationIndex;
-        while (previous[currentIndex] != -1) {
-            Edge temp = new Edge(nodes[previous[currentIndex]], nodes[currentIndex]);
-            this.totalDistance += temp.getWeight();
+        while(previous[currentIndex] != -1){
+            int prev = previous[currentIndex];
+            Edge[] edges = graph.getAdjacencyList(nodes[currentIndex]).toArray();
+            for(Edge e : edges){
+                if(e.getOtherNode(nodes[currentIndex]).equals(nodes[prev])){
+                    this.totalDistance += e.getWeight();
+                    path.insert(e);
+                    break;
+                }
+            }
             this.numberOfSteps++;
-            path.insert(temp);
-            currentIndex = previous[currentIndex];
+            currentIndex = prev;
         }
         this.path = this.path.reverse();
         return path;
