@@ -25,7 +25,7 @@ public class Run {
         MinimumSpanningTree mst = null;
         Scanner scanner = new Scanner(System.in);
         while (true) {
-            System.out.println('\n' + '\n' +'\n');
+            System.out.println();
             System.out.println("-----------------------------------------------------------------");
             System.out.println("\n=== MENU ===");
             System.out.println("1. Calculate and print Minimum Spanning Tree (Prim)");

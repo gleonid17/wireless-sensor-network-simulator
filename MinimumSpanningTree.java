@@ -19,7 +19,13 @@ public class MinimumSpanningTree {
     }
 
     private int getIndex(Node node) {
-         return graph.getIndex().get(node.getID()); 
+        if(node == null) 
+            return -1;
+        int index = graph.getIndex().get(node.getID());
+        if (index == -1) {
+            throw new IllegalArgumentException("Node with ID " + node.getID() + " not found in graph.");
+        }
+        return index;
     }
 
     public void Prim(Node startNode){ 
