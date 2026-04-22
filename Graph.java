@@ -98,7 +98,7 @@ public class Graph {
         nodeCount--;
 
         if (mstInstance != null) {
-            mstInstance.clearIndex(i); // Πρόσθεσε μια τέτοια μέθοδο
+            mstInstance.clearIndex(i);
         }
     }
 

@@ -80,14 +80,20 @@ public class AdjacencyList {
 
     @Override
     public String toString() {
+        if (head == null) 
+            return "";
         StringBuilder sb = new StringBuilder();
         NodeList temp = head;
-        sb.append(temp.edge.getSourceNode()).append(" --> ");
-        while (temp.next != null) {
-            sb.append(temp.edge.getDestinationNode()).append(" [").append(temp.edge.getWeight()).append("]").append(" --> ");
+        sb.append(temp.edge.getSourceNode());
+        while (temp != null) {
+            Node other = temp.edge.getDestinationNode();
+            sb.append(" --> ")
+            .append(other)
+            .append(" [")
+            .append(String.format("%.2f", temp.edge.getWeight()))
+            .append("]");
             temp = temp.next;
         }
-        sb.append(temp.edge.getDestinationNode().toString());
         return sb.toString();
     }
 

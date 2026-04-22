@@ -43,7 +43,7 @@ public class Edge {
         if (getClass() != obj.getClass())
             return false;
         Edge other = (Edge) obj;
-        return this.sourceNode.equals(other.sourceNode) && this.destinationNode.equals(other.destinationNode);
+        return (this.sourceNode.equals(other.sourceNode) && this.destinationNode.equals(other.destinationNode)) || (this.sourceNode.equals(other.destinationNode) && this.destinationNode.equals(other.sourceNode));
     }
 
     @Override
