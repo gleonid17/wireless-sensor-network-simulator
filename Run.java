@@ -25,6 +25,8 @@ public class Run {
         MinimumSpanningTree mst = null;
         Scanner scanner = new Scanner(System.in);
         while (true) {
+            System.out.println('\n' + '\n' +'\n');
+            System.out.println("-----------------------------------------------------------------");
             System.out.println("\n=== MENU ===");
             System.out.println("1. Calculate and print Minimum Spanning Tree (Prim)");
             System.out.println("2. Print Minimum Spanning Tree");
@@ -35,7 +37,13 @@ public class Run {
             System.out.println("7. Notify fire station of potential fire (Pathfinding)");
             System.out.println("8. Exit");
             System.out.print("Selection: ");
-            int choice = Integer.parseInt(scanner.nextLine().trim());
+            int choice;
+            try {
+                choice = Integer.parseInt(scanner.nextLine().trim());
+            } catch (Exception e) {
+                System.out.println("Invalid input. Please enter a number between 1 and 8.");
+                continue;
+            }
             switch (choice) {
                 case 1:
                     Node root = graph.getFirstFireStation();
