@@ -7,7 +7,7 @@ public class Dijkstra {
     int numberOfSteps;
 
     public Dijkstra(Graph graph, Node source, Node destination) {
-        this.path = null;
+        this.path = new AdjacencyList();
         this.graph = graph;
         this.source = source;
         this.destination = destination;
@@ -65,6 +65,7 @@ public class Dijkstra {
             path.insert(temp);
             currentIndex = previous[currentIndex];
         }
+        this.path = this.path.reverse();
         return path;
     }
 

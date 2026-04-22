@@ -68,6 +68,16 @@ public class AdjacencyList {
         return edges;
     }
 
+    public AdjacencyList reverse() {
+        AdjacencyList reversed = new AdjacencyList();
+        NodeList current = head;
+        while (current != null) {
+            reversed.insert(current.edge);
+            current = current.next;
+        }
+        return reversed;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();

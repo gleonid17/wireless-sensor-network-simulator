@@ -62,18 +62,6 @@ public class MinimumSpanningTree {
         }
     }
 
-    /* public Node[] getMST(Node node) {
-    //     Node[] mst = new Node[graph.getNodeCount()];
-    //     Node current = node;
-    //     int count = 0;
-
-    //     while (current != null) {
-    //     mst[count++] = current;
-    //     current = parent[getIndex(current)];            
-    //     }
-    //     return mst;
-    // }*/
-
     public void updateMST(Node newNode) {
         double minweight = Double.MAX_VALUE;
         Edge bestEdge = null;
@@ -98,7 +86,7 @@ public class MinimumSpanningTree {
 
         for (Edge e : edges) {
             if (e != bestEdge) { 
-                optimazeMST(newNode, e.getOtherNode(newNode), e.getWeight());
+                optimizeMST(newNode, e.getOtherNode(newNode), e.getWeight());
             }
         }
     }
@@ -107,7 +95,7 @@ public class MinimumSpanningTree {
         return totalCost;
     }
 
-    public void optimazeMST(Node newNode, Node neighbor, double newWeight) {
+    public void optimizeMST(Node newNode, Node neighbor, double newWeight) {
         Node current = neighbor;
         double maxWeight = -1.0;
         Node maxNode = null;
@@ -122,7 +110,10 @@ public class MinimumSpanningTree {
         }
 
         if (newWeight < maxWeight && maxNode != null) {
-            System.out.printf("Βελτίωση: %s--%s [%.2f] αντικαθιστά %s--%s [%.2f]%n", newNode.getID(), neighbor.getID(), newWeight, maxNode.getID(), parent[getIndex(maxNode)] != null ? parent[getIndex(maxNode)].getID() : "root", maxWeight);
+            System.out.printf("Improvement: %s--%s [%.2f] replaces %s--%s [%.2f]%n", 
+                newNode.getID(), neighbor.getID(), newWeight, maxNode.getID(), 
+                parent[getIndex(maxNode)] != null ? parent[getIndex(maxNode)].getID() : "root", maxWeight);
+            
             totalCost += newWeight - maxWeight;
 
             for(int i = 0; i < parent.length; i++) {
@@ -149,56 +140,56 @@ public class MinimumSpanningTree {
                 findMaxTemperature(graph.getNodes()[i]);
             }
         }
+
+         if (current.getTemperature() > maxTempFound) {
+            maxTempFound = current.getTemperature();
+        }
         
         if (parent[getIndex(current)] != null) {
             Node p = parent[getIndex(current)];
-            System.out.println("Μήνυμα: " + current.getID() + " -> " + p.getID() + " [MaxTemp=" + current.getTemperature() + "]");
+            System.out.println("Message: " + current.getID() + " -> " + p.getID() + " [MaxTemp=" + current.getTemperature() + "]");
         }
     }
 
-    public void broadcastMaxTemperature(Node current, double maxTemp) {
-        System.out.println("Ενημέρωση: " + current.getID() + " έλαβε MaxTemp = " + maxTemp);
-        
+    private void broadcastRequest(Node current) {
         for (int i = 0; i < parent.length; i++) {
-            if (parent[i] == current) {
-                System.out.println("Μήνυμα: " + current.getID() + " -> " + graph.getNodes()[i].getID() + " [Ενημέρωση MaxTemp]");
-                broadcastMaxTemperature(graph.getNodes()[i], maxTemp);
+            if (parent[i] == current && graph.getNodes()[i] != null) {
+                Node child = graph.getNodes()[i];
+                System.out.println("Message: " + current.getID() + " -> " + child.getID() 
+                    + " [Request MaxTemp]");
+                broadcastRequest(child);
             }
         }
     }
 
     public void maxTemperature(String startNodeID) {
         Node startNode = graph.getNode(startNodeID);
-        maxTempFound = -1.0; // Reset για νέα αναζήτηση
+        maxTempFound = -1.0;
 
-        System.out.println("=== ΦΑΣΗ ΣΥΛΛΟΓΗΣ (Αναζήτηση Max Temp) ===");
-        // Αναδρομική αναζήτηση από τα φύλλα προς τη ρίζα (startNode)
-        findMaxTemperature(startNode);
+         System.out.println("=== REQUEST PROPAGATION PHASE ===");
+            broadcastRequest(startNode);
         
-        System.out.println("Τελική μέγιστη θερμοκρασία δικτύου: " + maxTempFound);
-        
-        System.out.println("\n=== ΦΑΣΗ ΕΝΗΜΕΡΩΣΗΣ (Broadcast) ===");
-        // Αναδρομική ενημέρωση από τη ρίζα (startNode) προς τα φύλλα
-        broadcastMaxTemperature(startNode, maxTempFound);
+         System.out.println("\n=== RESPONSE COLLECTION PHASE ===");
+         findMaxTemperature(startNode);
+
+         System.out.println("\n=== RESULT ===");
+         System.out.println("Maximum Temperature found: " + maxTempFound + "°C");
     }
 
     public void printMST() {
-        System.out.println("Ενημέρωση MST...");
+        System.out.println("Updating MST View...");
         
         Node[] allNodes = graph.getNodes();
         
         for (int i = 0; i < parent.length; i++) {
-           
             if (parent[i] != null && i < allNodes.length && allNodes[i] != null) {
-                
                 String pID = parent[i].getID();
                 String nID = allNodes[i].getID();
                 String wStr = String.format("%.2f", weights[i]);
                 
-                System.out.println("Προσθήκη ακμής: " + pID + " -- " + nID + " [" + wStr + "]");
+                System.out.println("Adding Edge: " + pID + " -- " + nID + " [" + wStr + "]");
             }
         }
-        System.out.println("\nΝέο Συνολικό Κόστος MST: " + String.format("%.2f", totalCost));
+        System.out.println("\nNew Total MST Cost: " + String.format("%.2f", totalCost));
     }
-
 }
