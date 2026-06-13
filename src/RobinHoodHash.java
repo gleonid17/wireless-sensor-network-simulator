@@ -1,15 +1,38 @@
+/**
+ * RobinHoodHash class implements a hash table using the Robin Hood hashing algorithm.
+ * It provides methods for inserting, finding, removing, and updating entries in the hash table.
+ * The hash table automatically resizes when the load factor exceeds a certain threshold.
+ * 
+ * @author Giorgos Leonidou
+ * @author Andriani Mitsinga
+ */
+
 class RobinHoodHash {
+    /**
+     * HashEntry class represents an entry in the hash table, containing the key (id), 
+     * the index in the graph, the probe sequence length (psl), and a flag to indicate if the entry is empty.
+     */
     private class HashEntry {
         String id;
         int indexInGraph;
         int psl;
         boolean isEmpty;
 
+        /**
+         * Default constructor initializes an empty hash entry with psl set to 0.
+         */
         public HashEntry() { 
             isEmpty = true; 
             psl = 0; 
         }
 
+        /**
+         * Constructor for creating a hash entry with a key, index in the graph, and probe sequence length.
+         * 
+         * @param id The key for the hash entry.
+         * @param indexInGraph The index in the graph.
+         * @param psl The probe sequence length.
+         */
         public HashEntry(String id, int indexInGraph, int psl) {
             this.id = id;
             this.indexInGraph = indexInGraph;
@@ -17,11 +40,17 @@ class RobinHoodHash {
             this.isEmpty = false;
         }
     }
+
     private HashEntry[] table;
     private int size;
     private int capacity;
     private int maxPSL;
 
+    /**
+     * Constructor for creating a RobinHoodHash instance with a specified capacity.
+     * 
+     * @param capacity The initial capacity of the hash table.
+     */
     public RobinHoodHash(int capacity) {
         this.capacity = capacity;
         table = new HashEntry[capacity];
@@ -30,6 +59,12 @@ class RobinHoodHash {
         maxPSL = 0;
     }
 
+    /**
+     * Computes the hash value for a given key.
+     * 
+     * @param key The key for which to compute the hash.
+     * @return The hash value.
+     */
     private long computeHash(String key) {
         long hash = 0xcbf29ce484222325L;
         long prime = 0x100000001b3L;
@@ -40,10 +75,22 @@ class RobinHoodHash {
         return hash;
     }
 
+    /**
+     * Computes the hash index for a given key.
+     * 
+     * @param key The key for which to compute the hash index.
+     * @return The hash index.
+     */
     private int hash(String key) {
         return (int)(Math.abs(computeHash(key)) % capacity);
     }
 
+    /**
+     * Inserts a key-value pair into the hash table.
+     * 
+     * @param key The key to insert.
+     * @param indexInGraph The index in the graph.
+     */
     public void insert(String key, int indexInGraph) {
         if (size >= capacity * 0.9) rehash();
         HashEntry entry = new HashEntry(key, indexInGraph, 0);
@@ -65,6 +112,12 @@ class RobinHoodHash {
         }
     }
 
+    /**
+     * Finds the index in the graph for a given key.
+     * 
+     * @param key The key to search for.
+     * @return The index in the graph if the key is found, otherwise -1.
+     */
     public int find(String key) {
         int pos = hash(key);
         int psl = 0;
@@ -76,6 +129,11 @@ class RobinHoodHash {
         return -1;
     }
 
+    /**
+     * Removes a key-value pair from the hash table.
+     * 
+     * @param key The key to remove.
+     */
     public void remove(String key) {
         int pos = hash(key);
         int psl = 0;
@@ -90,6 +148,11 @@ class RobinHoodHash {
         }
     }
 
+    /**
+     * Shifts elements to fill the gap left by a deleted entry.
+     * 
+     * @param pos The position of the deleted entry.
+     */
     private void shiftDelete(int pos) {
         int next = (pos + 1) % capacity;
         while (!table[next].isEmpty && table[next].psl > 0) {
@@ -100,6 +163,12 @@ class RobinHoodHash {
         table[pos] = new HashEntry();
     }
 
+    /**
+     * Updates the index in the graph for a given key.
+     * 
+     * @param key The key for which to update the index.
+     * @param newIndexInGraph The new index in the graph.
+     */
     public void updateIndex(String key, int newIndexInGraph) {
         int pos = hash(key);
         int psl = 0;
@@ -113,6 +182,9 @@ class RobinHoodHash {
         }
     }
     
+    /**
+     * Rehashes the hash table when the load factor exceeds the threshold.
+     */
     private void rehash() {
         HashEntry[] old = table;
         capacity *= 2;

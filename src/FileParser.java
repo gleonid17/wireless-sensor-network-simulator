@@ -3,7 +3,20 @@ import java.io.FileWriter;
 import java.util.Scanner;
 import java.util.StringTokenizer;
 
+/**
+ * FileParser class provides methods to load and save graph data from and to files.
+ * 
+ * @author Giorgos Leonidou
+ * @author Andriani Mitsinga
+ */
+
 public class FileParser {
+    /**
+     * Loads graph data from a file.
+     * 
+     * @param filename The name of the file to load data from.
+     * @param graph The graph to populate with loaded data.
+     */
     public static void loadFromFile(String filename, Graph graph) {
         try {
             File file = new File(filename);
@@ -30,6 +43,12 @@ public class FileParser {
         }
     }
 
+    /**
+     * Saves graph data to a file.
+     * 
+     * @param filename The name of the file to save data to.
+     * @param graph The graph containing the data to save.
+     */
     public static void saveToFile(String filename, Graph graph) {
         try {
             FileWriter writer = new FileWriter(filename);

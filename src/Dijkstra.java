@@ -1,15 +1,27 @@
+/**
+ * Dijkstra class implements Dijkstra's algorithm to find the shortest path between a source node and a destination node in a graph.
+ * It uses a min-heap to efficiently retrieve the next node with the smallest distance during the algorithm's execution.
+ * The class also calculates the total distance of the path and the number of steps taken.
+ * 
+ * @author Giorgos Leonidou
+ * @author Andriani Mitsinga
+ */
 
 public class Dijkstra {
+    private AdjacencyList path;
+    private Graph graph;
+    private Node source;
+    private Node destination;
+    private Double totalDistance;
+    private int numberOfSteps;
 
-    AdjacencyList path;
-    Graph graph;
-    Node source;
-    Node destination;
-    Double totalDistance;
-    int numberOfSteps;
-    private Node[] pathFrom;
-    private int pathSize;
-
+    /**
+     * Constructs a Dijkstra object with the specified graph, source node, and destination node.
+     * 
+     * @param graph The graph in which to find the shortest path.
+     * @param source The source node from which to start the pathfinding.
+     * @param destination The destination node to which to find the shortest path.
+     */
     public Dijkstra(Graph graph, Node source, Node destination) {
         this.path = new AdjacencyList();
         this.graph = graph;
@@ -19,13 +31,14 @@ public class Dijkstra {
         this.numberOfSteps = 0;
     }
 
+    /**
+     * Executes Dijkstra's algorithm to find the shortest path between the source and destination nodes.
+     *
+     * @return The adjacency list representing the shortest path, or null if no path exists.
+     */
     public AdjacencyList dijkstra() {
-        if (source.getTemperature() < 50) {
-            System.out.println("No fire detected.");
-            System.out.println("Node        : " + source.getID());
-            System.out.println("Temperature : " + source.getTemperature() + "°C (Threshold: 50°C)");
+        if (source.getTemperature() < 50) 
             return null;
-        }
         int n = graph.getNodeCount();
         Node[] nodes = graph.getNodes();
         double[] distances = new double[n];
@@ -87,6 +100,11 @@ public class Dijkstra {
         return path;
     }
 
+    /**
+     * Returns a string representation of the shortest path found by Dijkstra's algorithm.
+     * 
+     * @return A string representing the shortest path, or an empty string if no path exists.
+     */
     @Override
     public String toString() {
         if (path == null || path.isEmpty()) {
@@ -109,10 +127,20 @@ public class Dijkstra {
         return sb.toString();
     }
 
+    /**
+     * Returns the total distance of the shortest path found by Dijkstra's algorithm.
+     *
+     * @return The total distance.
+     */
     public double gettotalDistance() {
         return this.totalDistance;
     }
 
+    /**
+     * Returns the number of steps in the shortest path found by Dijkstra's algorithm.
+     *
+     * @return The number of steps.
+     */
     public int getNumberOfSteps() {
         return this.numberOfSteps;
     }
